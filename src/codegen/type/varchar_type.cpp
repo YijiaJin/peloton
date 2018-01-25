@@ -586,6 +586,8 @@ Trim kTrim;
 std::vector<TypeSystem::UnaryOpInfo> kUnaryOperatorTable = {
     {OperatorId::Ascii, kAscii},
     {OperatorId::Length, kLength},
+    {OperatorId::Upper, kUpper},
+    {OperatorId::Lower, kLower},
     {OperatorId::Trim, kTrim}};
 
 // Binary operations
@@ -600,7 +602,7 @@ std::vector<TypeSystem::BinaryOpInfo> kBinaryOperatorTable = {
     {OperatorId::Like, kLike},         {OperatorId::DateTrunc, kDateTrunc},
     {OperatorId::DatePart, kDatePart}, {OperatorId::BTrim, kBTrim},
     {OperatorId::LTrim, kLTrim},       {OperatorId::RTrim, kRTrim},
-    {OperatorId::Repeat, kRepeat}};
+    {OperatorId::Concat, kConcat}, {OperatorId::Repeat, kRepeat}};
 
 // Nary operations
 Substr kSubstr;
