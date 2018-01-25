@@ -1076,7 +1076,6 @@ enum class OperatorId : uint32_t {
   Now,
 
   // Add more operators here, before the last "Invalid" entry
-  Concat,
   Upper,
   Lower,
   Invalid
