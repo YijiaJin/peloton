@@ -21,6 +21,7 @@ namespace function {
 uint32_t StringFunctions::Ascii(UNUSED_ATTRIBUTE executor::ExecutorContext &ctx,
                                 const char *str, uint32_t length) {
   PL_ASSERT(str != nullptr);
+
   return length <= 1 ? 0 : static_cast<uint32_t>(str[0]);
 }
 
@@ -94,25 +95,30 @@ bool StringFunctions::Like(UNUSED_ATTRIBUTE executor::ExecutorContext &ctx,
 
 StringFunctions::StrWithLen StringFunctions::Substr(
     UNUSED_ATTRIBUTE executor::ExecutorContext &ctx, const char *str,
-    uint32_t str_length, int32_t from, int32_t len) {
+    uint32_t str_length, int32_t from, int32_t len)
+{
   int32_t signed_end = from + len - 1;
-  if (signed_end < 0 || str_length == 0) {
+  if (signed_end < 0 || str_length == 0)
+  {
     return StringFunctions::StrWithLen{nullptr, 0};
   }
 
   uint32_t begin = from > 0 ? unsigned(from) - 1 : 0;
   uint32_t end = unsigned(signed_end);
 
-  if (end > str_length) {
+  if (end > str_length)
+  {
     end = str_length;
   }
 
-  if (begin > end) {
+  if (begin > end)
+  {
     return StringFunctions::StrWithLen{nullptr, 0};
   }
 
   return StringFunctions::StrWithLen{str + begin, end - begin + 1};
 }
+
 
 StringFunctions::StrWithLen StringFunctions::Repeat(
     executor::ExecutorContext &ctx, const char *str, uint32_t length,
@@ -219,6 +225,60 @@ uint32_t StringFunctions::Length(
   PL_ASSERT(str != nullptr);
   return length;
 }
+
+char* StringFunctions::Upper(
+    UNUSED_ATTRIBUTE executor::ExecutorContext &ctx, const char *str,
+    uint32_t str_length)
+{
+  PL_ASSERT(str != nullptr);
+  auto *pool = ctx.GetPool();
+  auto *new_str = reinterpret_cast<char *>(pool->Allocate(str_length));
+  char *ptr = new_str;
+  PL_MEMCPY(ptr, str, str_length);
+  for (char *iter = ptr; *iter != '\0'; ++iter) {
+    *iter = std::toupper(*iter);
+    ++iter;
+  }
+  LOG_INFO("Before:  %s  After: %s", ptr, str);
+  return ptr;
+}
+
+char* StringFunctions::Lower(
+    UNUSED_ATTRIBUTE executor::ExecutorContext &ctx, const char *str,
+    uint32_t str_length)
+{
+  PL_ASSERT(str != nullptr);
+  auto *pool = ctx.GetPool();
+  auto *new_str = reinterpret_cast<char *>(pool->Allocate(str_length));
+  char *ptr = new_str;
+  PL_MEMCPY(ptr, str, str_length);
+  for (char *iter = ptr; *iter != '\0'; ++iter) {
+    *iter = std::tolower(*iter);
+    ++iter;
+  }
+  LOG_INFO("Before:  %s  After: %s", ptr, str);
+  return ptr;
+}
+
+StringFunctions::StrWithLen StringFunctions::Concat(
+    UNUSED_ATTRIBUTE executor::ExecutorContext &ctx, const char **concat_strs,
+    uint32_t *str_lengths, uint32_t str_num)
+{
+  PL_ASSERT(concat_strs != nullptr);
+  uint32_t length = 0;
+  for(uint32_t i = 0; i < str_num; i++) {
+    length += *(str_lengths + i);
+  }
+  auto *pool = ctx.GetPool();
+  auto *new_str = reinterpret_cast<char *>(pool->Allocate(length));
+  char *ptr = new_str;
+  for(uint32_t i = 0; i < str_num; i++) {
+    PL_MEMCPY(ptr, concat_strs + i, *(str_lengths + i));
+    ptr += *(str_lengths + i);
+  }
+  return StringFunctions::StrWithLen{new_str, length};
+}
+
 
 }  // namespace function
 }  // namespace peloton
